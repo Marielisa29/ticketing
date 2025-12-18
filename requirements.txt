@@ -1,0 +1,20 @@
+# Framework web
+fastapi
+uvicorn[standard]
+
+# Base de données
+sqlalchemy
+alembic
+
+# Tests
+pytest
+pytest-asyncio
+httpx
+
+# Utilitaires
+python-dotenv
+
+# Formatage et linting (pour VS Code et pre-commit)
+black
+ruff
+pre-commit
