@@ -21,4 +21,7 @@ class Status(Enum):
 
     # TODO: Ajouter les statuts ici
     # Exemple : OPEN = "open"
-    pass
+    OPEN = "open"
+    IN_PROGRESS = "in_progress"
+    RESOLVED = "resolved"
+    CLOSED = "closed"
