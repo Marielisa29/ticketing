@@ -22,13 +22,7 @@ def calculate_duration_hours(start: datetime, end: datetime) -> float:
         >>> calculate_duration_hours(start, end)
         8.0
     """
-    # TODO: À compléter
-    #
-    # Indications :
-    # 1. Vérifier que end >= start, sinon lever ValueError
-    # 2. Calculer la différence : delta = end - start
-    # 3. Convertir en heures : delta.total_seconds() / 3600
-    # 4. Retourner le résultat
+
     if end < start:
         raise ValueError("Message d'erreur")
 

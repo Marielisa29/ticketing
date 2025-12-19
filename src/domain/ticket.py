@@ -1,7 +1,5 @@
 """
 Entité Ticket (ticket de support).
-
-TODO (TD01) : Compléter cette classe avec les attributs et méthodes nécessaires.
 C'est l'entité centrale du domaine métier.
 """
 
@@ -53,3 +51,8 @@ class Ticket:
     # def close(self):
     #     """Ferme le ticket."""
     #     pass
+
+    # def __post_init__(self):
+    # """S'exécute automatiquement après la création."""
+    # if not self.username:
+    #     raise ValueError("Username cannot be empty")
