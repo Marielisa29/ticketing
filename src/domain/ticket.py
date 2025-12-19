@@ -1,10 +1,7 @@
-"""
-Entité Ticket (ticket de support).
-C'est l'entité centrale du domaine métier.
-"""
-
 from dataclasses import dataclass
 from datetime import datetime, timezone
+
+from status import Status
 
 
 def _now_utc() -> datetime:
@@ -14,45 +11,18 @@ def _now_utc() -> datetime:
 
 @dataclass
 class Ticket:
-    """
-    Entité principale du domaine : un ticket de support.
-
-    TODO: Compléter cette classe avec :
-    1. Les attributs obligatoires (id, title, description, status...)
-    2. Les attributs optionnels (assignee, dates...)
-    3. Les méthodes métier (assign, close...)
-
-    Pensez aux règles métier (invariants) :
-    - Un ticket doit avoir un titre non vide
-    - Un ticket fermé ne peut plus être modifié
-    - etc.
-
-    Attributs:
-        id: Identifiant unique du ticket
-        title: Titre court décrivant le problème
-        description: Description détaillée
-        # TODO: Ajouter les autres attributs
-    """
-
     id: str
     title: str
     description: str
-    # TODO: Ajouter les attributs manquants
-    # - status (avec valeur par défaut Status.OPEN)
-    # - creator_id
-    # - assignee_id (optionnel)
-    # - created_at, updated_at (dates)
+    status: Status = Status.OPEN
+    creator_id: str
+    assignee_id: str = None
+    created_at: datetime = _now_utc()
+    updated_at: datetime = _now_utc()
 
-    # TODO: Ajouter les méthodes métier
-    # def assign(self, user_id: str):
-    #     """Assigne le ticket à un agent."""
-    #     pass
-    #
-    # def close(self):
-    #     """Ferme le ticket."""
-    #     pass
+    def assign(self, user_id: str):
+        self.assignee_id = user_id
 
-    # def __post_init__(self):
-    # """S'exécute automatiquement après la création."""
-    # if not self.username:
-    #     raise ValueError("Username cannot be empty")
+    def __post_init__(self):
+        if not self.title:
+            raise ValueError("Ticket title cannot be empty.")
