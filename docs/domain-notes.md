@@ -53,3 +53,4 @@ Les différentes règles métier :
   
 --> - Un utilisateur doit avoir un username non vide
     - Un utilisateur peut avoir un rôle
+
