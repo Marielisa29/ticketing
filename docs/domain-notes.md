@@ -38,3 +38,18 @@ Quels rôles un utilisateur peut-il prendre ?
     - Client
     - Observateur
     - Contributeur
+
+
+Les différentes règles métier :
+
+--> - Un ticket doit avoir un titre non vide
+    - Un ticket fermé ne peut plus être assigné
+    - Un ticket fermé ne peut plus être ouvert
+    - Un ticket déjà fermé ne peut pas être re-fermé
+    - Un ticket doit avoir une description
+    - Un ticket doit avoir un status valide
+    - Un ticket doit avoir une date de création non vide
+    - Un ticket doit avoir une date de mise à jour non vide
+  
+--> - Un utilisateur doit avoir un username non vide
+    - Un utilisateur peut avoir un rôle
