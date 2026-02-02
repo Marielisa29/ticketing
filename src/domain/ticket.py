@@ -41,3 +41,11 @@ class Ticket:
     def __post_init__(self):
         if not self.title:
             raise ValueError("Ticket title cannot be empty.")
+        if not self.description:
+            raise ValueError("Ticket description cannot be empty.")
+        if self.status not in [Status.OPEN, Status.CLOSED]:
+            raise ValueError("Ticket status must be valid.")
+        if self.created_at is None:  # Vérification de la date de création
+            raise ValueError("Ticket creation date cannot be empty.")
+        if self.updated_at is None:  # Vérification de la date de mise à jour
+            raise ValueError("Ticket update date cannot be empty.")

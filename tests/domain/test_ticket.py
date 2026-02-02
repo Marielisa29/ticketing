@@ -188,3 +188,54 @@ def test_closed_ticket_cannot_be_opened():
     # Tenter de rouvrir le ticket
     with pytest.raises(ValueError, match="Cannot open a closed ticket"):
         ticket.open()  # Cela devrait lever une exception
+
+
+def test_ticket_description_cannot_be_empty():
+    """Règle : Un ticket doit avoir une description."""
+
+    with pytest.raises(ValueError, match="Ticket description cannot be empty."):
+        Ticket(
+            id="t1",
+            title="Bug connexion",
+            description="",  # Description vide
+            creator_id="user1",
+        )
+
+
+def test_ticket_status_must_be_valid():
+    """Règle : Un ticket doit avoir un statut valide."""
+
+    with pytest.raises(ValueError, match="Ticket status must be valid."):
+        Ticket(
+            id="t1",
+            title="Bug connexion",
+            description="Impossible de se connecter",
+            creator_id="user1",
+            status="INVALID_STATUS",  # Statut invalide
+        )
+
+
+def test_ticket_creation_date_cannot_be_empty():
+    """Règle : Un ticket doit avoir une date de création non vide."""
+
+    with pytest.raises(ValueError, match="Ticket creation date cannot be empty."):
+        Ticket(
+            id="t1",
+            title="Bug connexion",
+            description="Impossible de se connecter",
+            creator_id="user1",
+            created_at=None,  # Date de création vide
+        )
+
+
+def test_ticket_update_date_cannot_be_empty():
+    """Règle : Un ticket doit avoir une date de mise à jour non vide."""
+
+    with pytest.raises(ValueError, match="Ticket update date cannot be empty."):
+        Ticket(
+            id="t1",
+            title="Bug connexion",
+            description="Impossible de se connecter",
+            creator_id="user1",
+            updated_at=None,  # Date de mise à jour vide
+        )
