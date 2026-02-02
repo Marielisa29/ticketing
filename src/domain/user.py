@@ -10,4 +10,4 @@ class User:
 
     def __post_init__(self):
         if not self.username:
-            raise ValueError("Username title cannot be empty.")
+            raise ValueError("Username cannot be empty.")

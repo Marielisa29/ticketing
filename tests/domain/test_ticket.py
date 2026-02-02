@@ -8,6 +8,8 @@ Ils doivent passer sans aucune dépendance externe (pas de DB, pas d'API).
 Lancez-les avec : pytest tests/domain/
 """
 
+from datetime import datetime
+
 import pytest
 
 from src.domain.status import Status
@@ -58,6 +60,51 @@ def test_ticket_close():
     assert ticket.status == Status.CLOSED
 
 
+# Tests cas nominaux
+
+
+def test_create_ticket_with_valid_values():
+    ticket = Ticket(
+        id="t1", title="Bug valeur", description="Valeur invalide", creator_id="user1"
+    )
+    assert ticket.title == "Bug valeur"
+    assert ticket.status == Status.OPEN
+    assert ticket.assignee_id is None
+    assert ticket.created_at, datetime
+
+
+def test_assign_ticket_to_agent():
+    ticket = Ticket(
+        id="1",
+        title="Bug agent",
+        description="Assignation à ticket ouvert",
+        creator_id="user_123",
+    )
+    ticket.assign("agent_123")
+    assert ticket.assignee_id == "agent_123"
+
+
+def test_start_ticket_transition_to_in_progress():
+    ticket = Ticket(
+        id="1",
+        title="Bug transition",
+        description="Démarrer ticket ouvert",
+        creator_id="user_123",
+    )
+    ticket.status = Status.IN_PROGRESS
+    assert ticket.status == Status.IN_PROGRESS
+
+
+def test_ticket_status_on_creation():
+    ticket = Ticket(
+        id="1",
+        title="Bug ouverte",
+        description="Statut du ticket",
+        creator_id="user_123",
+    )
+    assert ticket.status == Status.OPEN
+
+
 # Tests règles métiers
 
 
@@ -104,37 +151,40 @@ def test_ticket_title_cannot_be_empty():
         )
 
 
-# def test_user_username_cannot_be_empty():
-#     """Règle : Un utilisateur doit avoir un username non vide."""
+def test_user_username_cannot_be_empty():
+    """Règle : Un utilisateur doit avoir un username non vide."""
 
-#     with pytest.raises(ValueError, match="Ticket title cannot be empty."):
-#         User(
-#             id="u1",
-#             username="",  # Username vide
-#             is_agent=False,
-#             is_admin=False
-#         )
+    with pytest.raises(ValueError, match="Username cannot be empty."):
+        User(id="u1", username="", is_agent=False, is_admin=False)  # Username vide
 
 
-# def test_user_roles():
-#     """Règle : Un utilisateur peut avoir un rôle."""
+def test_user_roles():
+    """Règle : Un utilisateur peut avoir un rôle."""
 
-#     user = User(
-#         id="u1",
-#         username="alice",
-#         is_agent=True,
-#         is_admin=False
-#     )
+    user = User(id="u1", username="alice", is_agent=True, is_admin=False)
 
-#     assert user.is_agent is True
-#     assert user.is_admin is False
+    assert user.is_agent is True
+    assert user.is_admin is False
 
-#     user2 = User(
-#         id="u2",
-#         username="bob",
-#         is_agent=False,
-#         is_admin=True
-#     )
+    user2 = User(id="u2", username="bob", is_agent=False, is_admin=True)
 
-#     assert user2.is_agent is False
-#     assert user2.is_admin is True
+    assert user2.is_agent is False
+    assert user2.is_admin is True
+
+
+def test_closed_ticket_cannot_be_opened():
+    """Règle : Un ticket fermé ne peut plus être ouvert."""
+
+    ticket = Ticket(
+        id="t1",
+        title="Bug connexion",
+        description="Impossible de se connecter",
+        creator_id="user1",
+    )
+
+    # Fermer le ticket d'abord
+    ticket.close()
+
+    # Tenter de rouvrir le ticket
+    with pytest.raises(ValueError, match="Cannot open a closed ticket"):
+        ticket.open()  # Cela devrait lever une exception

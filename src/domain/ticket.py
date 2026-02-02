@@ -31,6 +31,13 @@ class Ticket:
         self.status = Status.CLOSED
         self.updated_at = _now_utc()
 
+    def open(self):
+        """Ouvre un ticket fermé."""
+        if self.status == Status.CLOSED:
+            raise ValueError("Cannot open a closed ticket")
+        self.status = Status.OPEN
+        self.updated_at = _now_utc()
+
     def __post_init__(self):
         if not self.title:
             raise ValueError("Ticket title cannot be empty.")
