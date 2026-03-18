@@ -15,3 +15,11 @@ class DomainError(Exception):
     """
 
     pass
+
+
+class TicketNotFoundError(DomainError):
+    """
+    Levée quand un ticket demandé n'existe pas.
+    """
+
+    pass
