@@ -1,60 +1,66 @@
 """
-Tests pour les cas d'usage (TD2).
+Tests du use case CreateTicket.
 
-Ces tests vérifient la logique applicative.
-Ils utilisent des adaptateurs "fake" (InMemory) pour isoler les tests.
-
-Écrivez vos tests ici après avoir terminé TD1.
-Lancez-les avec : pytest tests/application/
+Ces tests vérifient que le use case orchestre correctement
+le domaine et le repository.
 """
 
-# TODO (TD2): Décommenter ces imports une fois le domaine implémenté
-# from src.adapters.db.ticket_repository_inmemory import InMemoryTicketRepository
-# from src.application.usecases.create_ticket import CreateTicketUseCase
+import pytest
+
+from src.application.usecases.create_ticket import CreateTicketUseCase
+from src.adapters.db.ticket_repository_inmemory import InMemoryTicketRepository
+from src.domain.status import Status
 
 
-# ==========================================================================
-# EXEMPLES DE TESTS À ÉCRIRE (décommentez et adaptez)
-# ==========================================================================
+class TestCreateTicketUseCase:
+    """Suite de tests pour la création de tickets."""
 
-# def test_create_ticket_success():
-#     """Vérifie la création d'un ticket via le use case."""
-#     repo = InMemoryTicketRepository()
-#     usecase = CreateTicketUseCase(repo)
-#
-#     ticket = usecase.execute(
-#         title="Problème d'affichage",
-#         description="L'écran reste noir",
-#         creator_id="user123",
-#     )
-#
-#     assert ticket.id is not None
-#     assert repo.get(ticket.id) is not None
+    def setup_method(self):
+        """Initialise le repository et le use case avant chaque test."""
+        self.repo = InMemoryTicketRepository()
+        self.use_case = CreateTicketUseCase(self.repo)
 
+    def test_create_ticket_success(self):
+        """Doit créer un ticket avec les bonnes propriétés."""
+        # Arrange
+        title = "Bug critique"
+        description = "L'application plante au démarrage"
+        creator_id = "user-123"
 
-# def test_create_ticket_is_persisted():
-#     """Vérifie que le ticket créé peut être récupéré."""
-#     repo = InMemoryTicketRepository()
-#     usecase = CreateTicketUseCase(repo)
-#
-#     ticket = usecase.execute("Test", "Description", "user1")
-#     retrieved = repo.get(ticket.id)
-#
-#     assert retrieved is not None
-#     assert retrieved.creator_id == "user1"
+        # Act
+        ticket = self.use_case.execute(title, description, creator_id)
 
+        # Assert
+        assert ticket.id is not None
+        assert ticket.title == title
+        assert ticket.description == description
+        assert ticket.status == Status.OPEN
+        assert ticket.creator_id == creator_id
+        assert ticket.assignee_id is None
 
-# ==========================================================================
-# AUTRES TESTS À ÉCRIRE
-# ==========================================================================
+    def test_create_ticket_persists_in_repository(self):
+        """Doit sauvegarder le ticket dans le repository."""
+        # Arrange
+        title = "Nouvelle fonctionnalité"
+        description = "Ajouter un bouton export"
+        creator_id = "user-456"
 
-# def test_list_tickets_usecase():
-#     """Vérifie la récupération de tous les tickets."""
-#     # TODO: Implémenter ListTicketsUseCase et son test
-#     pass
+        # Act
+        ticket = self.use_case.execute(title, description, creator_id)
 
+        # Assert - Vérifier que le ticket est bien dans le repository
+        saved_ticket = self.repo.get_by_id(ticket.id)
+        assert saved_ticket is not None
+        assert saved_ticket.id == ticket.id
+        assert saved_ticket.title == title
 
-# def test_assign_ticket_usecase():
-#     """Vérifie l'assignation d'un ticket via use case."""
-#     # TODO: Implémenter AssignTicketUseCase et son test
-#     pass
+    def test_create_multiple_tickets(self):
+        """Doit pouvoir créer plusieurs tickets distincts."""
+        # Arrange & Act
+        ticket1 = self.use_case.execute("Bug 1", "Description 1", "user-1")
+        ticket2 = self.use_case.execute("Bug 2", "Description 2", "user-2")
+
+        # Assert
+        assert ticket1.id != ticket2.id
+        all_tickets = self.repo.list_all()
+        assert len(all_tickets) == 2
