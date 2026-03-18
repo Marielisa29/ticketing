@@ -56,3 +56,29 @@ class TestListTicketsUseCase:
         assert len(closed_tickets) == 1
         assert all(t.status == Status.OPEN for t in open_tickets)
         assert all(t.status == Status.CLOSED for t in closed_tickets)
+
+    # --- Cas d'erreur ---
+
+    def test_list_tickets_filter_no_match_returns_empty(self):
+        """Doit retourner une liste vide si aucun ticket ne correspond au filtre."""
+        # Arrange - uniquement des tickets OPEN
+        self.create_use_case.execute("Bug 1", "Description 1", "user-1")
+        self.create_use_case.execute("Bug 2", "Description 2", "user-2")
+
+        # Act
+        closed_tickets = self.list_use_case.execute(status=Status.CLOSED)
+
+        # Assert
+        assert closed_tickets == []
+
+    def test_list_tickets_filter_does_not_mutate_repository(self):
+        """Filtrer les tickets ne doit pas modifier le repository."""
+        # Arrange
+        self.create_use_case.execute("Bug 1", "Description 1", "user-1")
+        self.create_use_case.execute("Bug 2", "Description 2", "user-2")
+
+        # Act - filtre qui ne retourne rien
+        self.list_use_case.execute(status=Status.CLOSED)
+
+        # Assert - le repo contient toujours tous les tickets
+        assert len(self.repo.list_all()) == 2

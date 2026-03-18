@@ -64,3 +64,26 @@ class TestCreateTicketUseCase:
         assert ticket1.id != ticket2.id
         all_tickets = self.repo.list_all()
         assert len(all_tickets) == 2
+
+    # --- Cas d'erreur ---
+
+    def test_create_ticket_empty_title_raises_error(self):
+        """Doit lever une ValueError si le titre est vide."""
+        # Act & Assert
+        with pytest.raises(ValueError):
+            self.use_case.execute("", "Description valide", "user-123")
+
+    def test_create_ticket_empty_description_raises_error(self):
+        """Doit lever une ValueError si la description est vide."""
+        # Act & Assert
+        with pytest.raises(ValueError):
+            self.use_case.execute("Titre valide", "", "user-123")
+
+    def test_create_ticket_not_persisted_on_error(self):
+        """Le repository ne doit pas contenir de ticket si la création échoue."""
+        # Act
+        with pytest.raises(ValueError):
+            self.use_case.execute("", "Description valide", "user-123")
+
+        # Assert - Aucun ticket sauvegardé
+        assert self.repo.list_all() == []

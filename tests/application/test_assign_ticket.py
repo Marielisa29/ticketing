@@ -63,3 +63,39 @@ class TestAssignTicketUseCase:
         saved_ticket = self.repo.get_by_id(ticket.id)
         assert saved_ticket.assignee_id is not None
         assert saved_ticket.assignee_id == agent_id
+
+    # --- Cas d'erreur ---
+
+    def test_assign_closed_ticket_raises_error(self):
+        """Doit lever une ValueError si le ticket est fermé."""
+        # Arrange
+        ticket = self.create_use_case.execute(
+            "Bug fermé",
+            "Ce ticket est déjà clôturé",
+            "user-123"
+        )
+        ticket.close()
+        self.repo.save(ticket)
+
+        # Act & Assert
+        with pytest.raises(ValueError):
+            self.assign_use_case.execute(ticket.id, "agent-456")
+
+    def test_assign_ticket_does_not_change_assignee_on_error(self):
+        """L'assignee ne doit pas changer si l'assignation échoue."""
+        # Arrange - ticket fermé sans assignee
+        ticket = self.create_use_case.execute(
+            "Bug fermé sans assignee",
+            "Description",
+            "user-123"
+        )
+        ticket.close()
+        self.repo.save(ticket)
+
+        # Act
+        with pytest.raises(ValueError):
+            self.assign_use_case.execute(ticket.id, "agent-456")
+
+        # Assert - l'assignee reste None
+        saved_ticket = self.repo.get_by_id(ticket.id)
+        assert saved_ticket.assignee_id is None
