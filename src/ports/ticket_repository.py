@@ -3,7 +3,6 @@ Port (interface) pour la persistance des tickets.
 Ce module définit le contrat que tout adaptateur de stockage doit respecter.
 Les use cases utilisent cette interface, sans connaître l'implémentation concrète.
 """
-
 from abc import ABC, abstractmethod
 from typing import Optional
 
@@ -14,8 +13,15 @@ class TicketRepository(ABC):
     """
     Interface abstraite pour la persistance des tickets.
 
-    Cette interface définit les opérations de base (CRUD) sur les tickets.
-    Les adaptateurs concrets (InMemory, SQLite, etc.) implémenteront ces méthodes.
+    Définit le contrat (port) que tout adaptateur de stockage doit respecter,
+    qu'il s'agisse d'une implémentation en mémoire, SQLite, PostgreSQL, etc.
+
+    Les use cases dépendent uniquement de cette interface — jamais d'une
+    implémentation concrète. C'est le principe d'inversion de dépendances
+    au cœur de l'architecture hexagonale.
+
+    Toute nouvelle implémentation doit fournir les trois opérations définies
+    ci-dessous : save, get_by_id et list_all.
     """
 
     @abstractmethod
@@ -23,24 +29,28 @@ class TicketRepository(ABC):
         """
         Sauvegarde un ticket (création ou mise à jour).
 
+        Si un ticket avec le même identifiant existe déjà, il doit être
+        remplacé (comportement upsert). Sinon, le ticket est créé.
+
         Args:
-            ticket: Le ticket à sauvegarder
+            ticket: Le ticket à sauvegarder. Doit avoir un attribut `id` non vide.
 
         Returns:
-            Le ticket sauvegardé (avec éventuellement un ID généré)
+            Le ticket tel qu'il a été persisté.
         """
         ...
 
     @abstractmethod
     def get_by_id(self, ticket_id: str) -> Optional[Ticket]:
         """
-        Récupère un ticket par son identifiant.
+        Récupère un ticket par son identifiant unique.
 
         Args:
-            ticket_id: L'identifiant unique du ticket
+            ticket_id: L'identifiant unique du ticket recherché.
 
         Returns:
-            Le ticket trouvé, ou None s'il n'existe pas
+            Le ticket correspondant à l'identifiant,
+            ou None si aucun ticket ne correspond.
         """
         ...
 
@@ -50,6 +60,7 @@ class TicketRepository(ABC):
         Récupère tous les tickets du système.
 
         Returns:
-            Liste de tous les tickets (peut être vide)
+            Liste de tous les tickets persistés.
+            Retourne une liste vide si aucun ticket n'existe.
         """
         ...

@@ -16,16 +16,19 @@ class ListTicketsUseCase:
     """
     Cas d'usage pour lister les tickets.
 
-    Permet de récupérer tous les tickets, ou uniquement ceux
-    correspondant à un statut donné.
+    Récupère l'ensemble des tickets persistés et applique un filtre
+    optionnel par statut. Le filtrage est effectué en mémoire après
+    récupération, ce qui convient à l'adaptateur InMemory et aux petits
+    volumes. Un adaptateur SQL pourrait optimiser cela avec une clause WHERE.
     """
 
     def __init__(self, ticket_repo: TicketRepository):
         """
-        Initialise le use case.
+        Initialise le use case avec ses dépendances.
 
         Args:
-            ticket_repo: Le repository de tickets
+            ticket_repo: Le repository de tickets (via son interface).
+                         Peut être une implémentation InMemory, SQLite, PostgreSQL, etc.
         """
         self.ticket_repo = ticket_repo
 
@@ -33,12 +36,18 @@ class ListTicketsUseCase:
         """
         Retourne la liste des tickets, filtrée par statut si fourni.
 
+        Ne modifie pas l'état du repository ni des tickets retournés.
+        Si aucun ticket ne correspond au filtre, retourne une liste vide.
+
         Args:
             status: Statut pour filtrer les tickets (optionnel).
-                    Si None, retourne tous les tickets.
+                    Valeurs possibles : Status.OPEN, Status.IN_PROGRESS,
+                    Status.RESOLVED, Status.CLOSED.
+                    Si None, tous les tickets sont retournés sans filtre.
 
         Returns:
-            Liste des tickets correspondant au filtre
+            Liste des tickets correspondant au filtre, dans l'ordre
+            d'insertion dans le repository. Peut être vide.
         """
         tickets = self.ticket_repo.list_all()
 

@@ -16,7 +16,11 @@ class CreateTicketUseCase:
     """
     Cas d'usage pour créer un nouveau ticket.
 
-    Reçoit le repository via injection de dépendances (principe d'inversion).
+    Orchestre la création d'un ticket en instanciant l'entité du domaine,
+    en générant un identifiant unique (UUID) et en le persistant via le port.
+
+    Reçoit le repository via injection de dépendances (principe d'inversion) :
+    il ne connaît que l'interface TicketRepository, jamais l'implémentation concrète.
     """
 
     def __init__(self, ticket_repo: TicketRepository):
@@ -24,7 +28,8 @@ class CreateTicketUseCase:
         Initialise le use case avec ses dépendances.
 
         Args:
-            ticket_repo: Le repository (via son interface)
+            ticket_repo: Le repository de tickets (via son interface).
+                         Peut être une implémentation InMemory, SQLite, PostgreSQL, etc.
         """
         self.ticket_repo = ticket_repo
 
@@ -37,16 +42,21 @@ class CreateTicketUseCase:
         """
         Exécute la création d'un ticket.
 
+        Génère un UUID comme identifiant, horodate la création et la mise à jour
+        au même instant (UTC), puis délègue la persistance au repository.
+
         Args:
-            title: Titre du ticket
-            description: Description du problème
-            creator_id: ID de l'utilisateur créateur
+            title: Titre du ticket. Ne peut pas être vide.
+            description: Description détaillée du problème. Ne peut pas être vide.
+            creator_id: Identifiant de l'utilisateur à l'origine du ticket.
 
         Returns:
-            Le ticket créé
+            Le ticket créé et persisté, avec son identifiant généré,
+            son statut initial OPEN et ses dates de création renseignées.
 
         Raises:
-            ValueError: Si les données sont invalides (titre ou description vides)
+            ValueError: Si le titre ou la description sont vides
+                        (règle métier levée par l'entité Ticket).
         """
         now = datetime.now(timezone.utc)
 
