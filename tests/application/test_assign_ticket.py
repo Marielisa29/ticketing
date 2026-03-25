@@ -2,13 +2,9 @@
 Tests du use case AssignTicket.
 """
 
-from pathlib import Path
-
 import pytest
 
-from src.adapters.db.database import init_database
 from src.adapters.db.ticket_repository_inmemory import InMemoryTicketRepository
-from src.adapters.db.ticket_repository_sqlite import SQLiteTicketRepository
 from src.application.usecases.assign_ticket import AssignTicketUseCase
 from src.application.usecases.create_ticket import CreateTicketUseCase
 from src.domain.exceptions import TicketNotFoundError
@@ -98,17 +94,11 @@ class TestAssignTicketUseCase:
         saved_ticket = self.repo.get_by_id(ticket.id)
         assert saved_ticket.assignee_id is None
 
-    def test_assign_ticket_with_sqlite(self, tmp_path: Path):
-        """Doit assigner un ticket et persister le changement dans SQLite."""
-        db_file = tmp_path / "test_assign_ticket.db"
-        db_path_str = str(db_file)
-
-        # Initialise la base (si vous possédez schema.sql et init_database)
-        init_database(db_path=db_path_str)
-
-        sqlite_repo = SQLiteTicketRepository(db_path=db_path_str)
-        create_uc = CreateTicketUseCase(sqlite_repo)
-        assign_uc = AssignTicketUseCase(sqlite_repo)
+    def test_assign_ticket_with_sqlite(self, sqlite_ticket_repo):
+        """Doit assigner un ticket et persister le changement dans SQLite (via fixture)."""
+        repo = sqlite_ticket_repo
+        create_uc = CreateTicketUseCase(repo)
+        assign_uc = AssignTicketUseCase(repo)
 
         ticket = create_uc.execute(
             "Bug persistance", "Vérifier assignation SQLite", "user-sqlite"
@@ -119,7 +109,6 @@ class TestAssignTicketUseCase:
 
         assert updated.assignee_id == agent_id
 
-        # Vérifier persistance
-        saved = sqlite_repo.get_by_id(ticket.id)
+        saved = repo.get_by_id(ticket.id)
         assert saved is not None
         assert saved.assignee_id == agent_id
