@@ -23,3 +23,21 @@ class TicketNotFoundError(DomainError):
     """
 
     pass
+
+
+class TicketNotAssignedError(DomainError):
+    """Levée quand on essaie de démarrer un ticket non assigné."""
+
+    pass
+
+
+class WrongAgentError(DomainError):
+    """Levée quand un agent essaie de démarrer un ticket assigné à quelqu'un d'autre."""
+
+    pass
+
+
+class InvalidTicketStateError(DomainError):
+    """Levée quand on essaie une opération invalide pour l'état actuel du ticket."""
+
+    pass
