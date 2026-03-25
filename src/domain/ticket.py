@@ -1,11 +1,14 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime, timezone
+from typing import Optional
 
 from src.domain.exceptions import (
     InvalidTicketStateError,
     TicketNotAssignedError,
     WrongAgentError,
 )
+
+from src.domain.priority import Priority
 from src.domain.status import Status
 
 
@@ -20,10 +23,14 @@ class Ticket:
     title: str
     description: str
     creator_id: str
+    priority: Priority = Priority.MEDIUM
     status: Status = Status.OPEN
-    assignee_id: str = None
-    created_at: datetime = _now_utc()
-    updated_at: datetime = _now_utc()
+    assignee_id: Optional[str] = None
+    project_id: Optional[str] = None
+    created_at: datetime = field(default_factory=_now_utc)
+    updated_at: datetime = field(default_factory=_now_utc)
+    started_at: Optional[datetime] = None
+    closed_at: Optional[datetime] = None
 
     # Transitions autorisées
     ALLOWED_TRANSITIONS = {
@@ -37,11 +44,13 @@ class Ticket:
         if self.status == Status.CLOSED:
             raise ValueError("Cannot assign a closed ticket")
         self.assignee_id = user_id
+        self.updated_at = _now_utc()
 
     def close(self):
         if self.status == Status.CLOSED:
             raise ValueError("Ticket is already closed")
         self.status = Status.CLOSED
+        self.closed_at = _now_utc()
         self.updated_at = _now_utc()
 
     def open(self):
@@ -88,18 +97,24 @@ class Ticket:
         # Effectuer la transition et enregistrer l'heure de démarrage
         self.transition_to(Status.IN_PROGRESS, started_at)
         self.started_at = started_at
+        self.updated_at = started_at
 
     def __post_init__(self):
+        # Validation des champs obligatoires
         if not self.title:
             raise ValueError("Ticket title cannot be empty.")
         if not self.description:
             raise ValueError("Ticket description cannot be empty.")
-        if self.status not in [Status.OPEN, Status.CLOSED]:
+        # status doit être une instance de Status
+        if not isinstance(self.status, Status):
             raise ValueError("Ticket status must be valid.")
         if self.created_at is None:  # Vérification de la date de création
             raise ValueError("Ticket creation date cannot be empty.")
         if self.updated_at is None:  # Vérification de la date de mise à jour
             raise ValueError("Ticket update date cannot be empty.")
+        # priority doit être une instance de Priority
+        if not isinstance(self.priority, Priority):
+            raise ValueError("Ticket priority must be valid.")
 
     def transition_to(self, new_status: Status, updated_at: datetime) -> None:
         """Fait transiter le ticket vers un nouveau statut."""
