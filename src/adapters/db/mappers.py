@@ -51,7 +51,9 @@ def row_to_ticket(row: dict) -> Ticket:
     # Conversion des chaînes datetime
     created_at = datetime.fromisoformat(row["created_at"])
     updated_at = datetime.fromisoformat(row["updated_at"])
-    started_at = datetime.fromisoformat(row["started_at"]) if row["started_at"] else None
+    started_at = (
+        datetime.fromisoformat(row["started_at"]) if row["started_at"] else None
+    )
     closed_at = datetime.fromisoformat(row["closed_at"]) if row["closed_at"] else None
 
     # Création du ticket sans status (il a une valeur par défaut)

@@ -7,7 +7,6 @@ from src.domain.exceptions import (
     TicketNotAssignedError,
     WrongAgentError,
 )
-
 from src.domain.priority import Priority
 from src.domain.status import Status
 
@@ -98,6 +97,19 @@ class Ticket:
         self.transition_to(Status.IN_PROGRESS, started_at)
         self.started_at = started_at
         self.updated_at = started_at
+
+    def _restore_status_from_db(self, status: Status) -> None:
+        """
+        Méthode utilitaire utilisée par les mappers/ORM pour restaurer
+        le statut d'un ticket depuis la base de données.
+
+        Cette méthode contourne certaines validations faites à la création
+        (car on reconstruit un état déjà persistant). Elle doit simplement
+        affecter le statut tel qu'il est dans la DB.
+        """
+        # On suppose que la valeur fournie est une instance de Status
+        # (le mapper doit convertir la chaîne en Status avant d'appeler).
+        self.status = status
 
     def __post_init__(self):
         # Validation des champs obligatoires

@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class Priority(Enum):
     """
     Définition des priorités tickets.

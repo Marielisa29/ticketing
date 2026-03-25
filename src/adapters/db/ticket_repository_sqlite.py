@@ -1,9 +1,10 @@
-from typing import Optional, List
+from typing import List, Optional
 
-from src.ports.ticket_repository import TicketRepository
 from src.domain.ticket import Ticket
-from .database import get_connection, close_connection
-from .mappers import ticket_to_row, row_to_ticket
+from src.ports.ticket_repository import TicketRepository
+
+from .database import close_connection, get_connection
+from .mappers import row_to_ticket, ticket_to_row
 
 
 class SQLiteTicketRepository(TicketRepository):

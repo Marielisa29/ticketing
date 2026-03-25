@@ -5,10 +5,14 @@ Ces tests vérifient que le use case orchestre correctement
 le domaine et le repository.
 """
 
+from pathlib import Path
+
 import pytest
 
-from src.application.usecases.create_ticket import CreateTicketUseCase
+from src.adapters.db.database import init_database
 from src.adapters.db.ticket_repository_inmemory import InMemoryTicketRepository
+from src.adapters.db.ticket_repository_sqlite import SQLiteTicketRepository
+from src.application.usecases.create_ticket import CreateTicketUseCase
 from src.domain.status import Status
 
 
@@ -87,3 +91,30 @@ class TestCreateTicketUseCase:
 
         # Assert - Aucun ticket sauvegardé
         assert self.repo.list_all() == []
+
+    def test_create_ticket_with_sqlite(self, tmp_path: Path):
+        """Doit créer un ticket et le persister dans SQLite (intégration minimale)."""
+        db_file = tmp_path / "test_create_ticket.db"
+        db_path_str = str(db_file)
+
+        # Initialise la base (si vous possédez schema.sql et init_database)
+        # Si vous n'avez pas init_database, assurez-vous que la table 'tickets' existe.
+        init_database(db_path=db_path_str)
+
+        sqlite_repo = SQLiteTicketRepository(db_path=db_path_str)
+        use_case = CreateTicketUseCase(sqlite_repo)
+
+        title = "Bug critique"
+        description = "Le système plante"
+        creator_id = "user-sqlite"
+
+        ticket = use_case.execute(title, description, creator_id)
+
+        assert ticket.id is not None
+        assert ticket.status == Status.OPEN
+
+        # Vérifier persistance : récupérer depuis la DB
+        retrieved = sqlite_repo.get_by_id(ticket.id)
+        assert retrieved is not None
+        assert retrieved.title == title
+        assert retrieved.creator_id == creator_id
