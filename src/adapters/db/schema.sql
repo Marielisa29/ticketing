@@ -15,3 +15,10 @@ CREATE TABLE IF NOT EXISTS tickets (
     started_at TEXT,
     closed_at TEXT
 );
+
+CREATE TABLE IF NOT EXISTS users (
+    id TEXT PRIMARY KEY,
+    username TEXT NOT NULL,
+    is_agent INTEGER NOT NULL DEFAULT 0,
+    is_admin INTEGER NOT NULL DEFAULT 0
+);
