@@ -8,7 +8,8 @@ from src.adapters.db.user_repository_sqlite import SQLiteUserRepository
 @pytest.fixture
 def sqlite_ticket_repo(tmp_path):
     """
-    Fixture fournissant un repository SQLite de tickets avec une base de données temporaire.
+    Fixture fournissant un repository SQLite de tickets avec une base de données
+     temporaire.
 
     Crée une base de données fraîche et isolée pour chaque test afin de garantir
     l'indépendance des tests. La base de données est automatiquement nettoyée
