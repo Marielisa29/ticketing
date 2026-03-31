@@ -30,5 +30,8 @@ class InMemoryUserRepository(UserRepository):
     def list_all(self) -> list[User]:
         return list(self._users.values())
 
+    def find_agents(self) -> list[User]:
+        return [u for u in self._users.values() if u.is_agent]
+
     def clear(self):
         self._users.clear()
