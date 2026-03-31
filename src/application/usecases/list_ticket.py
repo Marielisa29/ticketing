@@ -7,8 +7,8 @@ avec un filtre optionnel par statut.
 
 from typing import Optional
 
-from src.domain.ticket import Ticket
 from src.domain.status import Status
+from src.domain.ticket import Ticket
 from src.ports.ticket_repository import TicketRepository
 
 

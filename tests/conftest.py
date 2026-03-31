@@ -18,7 +18,8 @@ def sqlite_ticket_repo(tmp_path):
         tmp_path: Répertoire temporaire fourni par pytest (auto-nettoyage)
 
     Returns:
-        SQLiteTicketRepository: Instance du repository avec base de données temporaire
+        SQLiteTicketRepository: Instance du repository avec base de
+        données temporaire
 
     Exemple:
         def test_save_ticket(sqlite_ticket_repo):
@@ -35,7 +36,8 @@ def sqlite_ticket_repo(tmp_path):
     # Création et retour du repository
     repo = SQLiteTicketRepository(str(db_path))
     return repo
-    # Pas de nettoyage nécessaire : pytest supprime automatiquement tmp_path après le test
+    # Pas de nettoyage nécessaire : pytest supprime automatiquement tmp_path
+    # après le test
 
 
 @pytest.fixture

@@ -119,7 +119,8 @@ class TestStartTicketUseCase:
         assert persisted_ticket.started_at == self.fixed_time
 
     def test_start_ticket_deterministic_with_fixed_clock(self):
-        """Doit être déterministe avec FixedClock (même timestamp à chaque exécution)."""
+        """Doit être déterministe avec FixedClock
+        (même timestamp à chaque exécution)."""
         # Arrange - Créer plusieurs tickets
         agents = ["agent-1", "agent-2", "agent-3"]
         tickets = []

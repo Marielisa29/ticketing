@@ -27,7 +27,9 @@ class CreateUserUseCase:
         """
         self.user_repo = user_repo
 
-    def execute(self, username: str, is_agent: bool = False, is_admin: bool = False) -> User:
+    def execute(
+        self, username: str, is_agent: bool = False, is_admin: bool = False
+    ) -> User:
         """
         Exécute la création d'un utilisateur.
 
@@ -51,12 +53,7 @@ class CreateUserUseCase:
         user_id = str(uuid.uuid4())
 
         # Créer l'entité User (la validation se fait dans __post_init__)
-        user = User(
-            id=user_id,
-            username=username,
-            is_agent=is_agent,
-            is_admin=is_admin
-        )
+        user = User(id=user_id, username=username, is_agent=is_agent, is_admin=is_admin)
 
         # Persister via le repository
         self.user_repo.save(user)

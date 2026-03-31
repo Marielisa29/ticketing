@@ -95,7 +95,8 @@ class TestAssignTicketUseCase:
         assert saved_ticket.assignee_id is None
 
     def test_assign_ticket_with_sqlite(self, sqlite_ticket_repo):
-        """Doit assigner un ticket et persister le changement dans SQLite (via fixture)."""
+        """Doit assigner un ticket et persister le changement dans SQLite
+        (via fixture)."""
         repo = sqlite_ticket_repo
         create_uc = CreateTicketUseCase(repo)
         assign_uc = AssignTicketUseCase(repo)

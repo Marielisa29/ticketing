@@ -2,9 +2,9 @@
 Tests du use case ListTickets.
 """
 
+from src.adapters.db.ticket_repository_inmemory import InMemoryTicketRepository
 from src.application.usecases.create_ticket import CreateTicketUseCase
 from src.application.usecases.list_ticket import ListTicketsUseCase
-from src.adapters.db.ticket_repository_inmemory import InMemoryTicketRepository
 from src.domain.status import Status
 
 
@@ -43,7 +43,9 @@ class TestListTicketsUseCase:
         # Arrange
         self.create_use_case.execute("Bug open 1", "Description 1", "user-1")
         self.create_use_case.execute("Bug open 2", "Description 2", "user-2")
-        ticket_to_close = self.create_use_case.execute("Bug à clore", "Description 3", "user-3")
+        ticket_to_close = self.create_use_case.execute(
+            "Bug à clore", "Description 3", "user-3"
+        )
         ticket_to_close.close()
         self.repo.save(ticket_to_close)
 
