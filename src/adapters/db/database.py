@@ -31,7 +31,8 @@ def init_database(db_path: str = "ticketing.db", schema_path: Optional[str] = No
 
     Args:
         db_path: Chemin vers le fichier de base de données
-        schema_path: Chemin vers le fichier schema.sql (optionnel, auto-détecté si non fourni)
+        schema_path: Chemin vers le fichier schema.sql
+        (optionnel, auto-détecté si non fourni)
     """
     if schema_path is None:
         # Auto-détection de schema.sql dans le même répertoire

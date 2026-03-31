@@ -4,8 +4,8 @@ Use case : Assigner un ticket à un agent.
 Ce use case gère l'assignation d'un ticket existant à un agent.
 """
 
-from src.domain.ticket import Ticket
 from src.domain.exceptions import TicketNotFoundError
+from src.domain.ticket import Ticket
 from src.ports.ticket_repository import TicketRepository
 
 

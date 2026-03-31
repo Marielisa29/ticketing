@@ -1,9 +1,10 @@
-from typing import Optional, List
+from typing import List, Optional
 
-from src.ports.user_repository import UserRepository
 from src.domain.user import User
+from src.ports.user_repository import UserRepository
+
 from .database import get_connection
-from .mappers import user_to_row, row_to_user
+from .mappers import row_to_user, user_to_row
 
 
 class SQLiteUserRepository(UserRepository):

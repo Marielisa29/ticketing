@@ -44,7 +44,8 @@ def row_to_ticket(row: dict) -> Ticket:
     Convertit une ligne de base de données en entité Ticket du domaine.
 
     Args:
-        row: Dictionnaire représentant une ligne de base de données (avec noms de colonnes comme clés)
+        row: Dictionnaire représentant une ligne de base de données
+        (avec noms de colonnes comme clés)
 
     Returns:
         Entité Ticket du domaine
