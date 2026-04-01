@@ -102,13 +102,19 @@ async def create_ticket(
     )
 
 
-@router.get("/")
+@router.get("/", response_model=list[TicketOut])
 async def list_tickets():
-    """
-    Liste tous les tickets.
+    from src.main import get_list_tickets_usecase
 
-    Returns:
-        Liste des tickets existants
-    """
-    # TODO: appeler le cas d'usage ListTickets
-    return []
+    usecase = get_list_tickets_usecase()
+    tickets = usecase.execute()
+
+    return [
+        TicketOut(
+            id=ticket.id,
+            title=ticket.title,
+            description=ticket.description,
+            status=ticket.status.value,
+        )
+        for ticket in tickets
+    ]
