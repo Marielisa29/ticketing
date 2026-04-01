@@ -23,6 +23,7 @@ class TicketIn(BaseModel):
 
     title: str
     description: str
+    creator_id: str
 
 
 class TicketOut(BaseModel):
@@ -80,8 +81,24 @@ async def create_ticket(
     #     description=ticket.description, status=ticket.status.value
     # )
 
+    # 1. Récupérer le use case depuis le composition root
+    from src.main import get_create_ticket_usecase
+
+    usecase = get_create_ticket_usecase()
+
+    # 2. Appeler le use case
+    ticket = usecase.execute(
+        title=payload.title,
+        description=payload.description,
+        creator_id=payload.creator_id,
+    )
+
+    # 3. Convertir l'entité domaine en schéma API
     return TicketOut(
-        id="TODO", title=payload.title, description=payload.description, status="open"
+        id=ticket.id,
+        title=ticket.title,
+        description=ticket.description,
+        status=ticket.status.value,  # Enum → string
     )
 
 

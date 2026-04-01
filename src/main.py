@@ -14,7 +14,9 @@ from fastapi import FastAPI
 
 from src.adapters.api.ticket_router import router as ticket_router
 from src.adapters.db.ticket_repository_inmemory import InMemoryTicketRepository
+from src.application.usecases.assign_ticket import AssignTicketUseCase
 from src.application.usecases.create_ticket import CreateTicketUseCase
+from src.application.usecases.list_ticket import ListTicketsUseCase
 
 app = FastAPI(title="Ticketing Starter")
 
@@ -34,9 +36,13 @@ def get_create_ticket_usecase() -> CreateTicketUseCase:
     return CreateTicketUseCase(ticket_repository)
 
 
-# TODO: Ajouter d'autres factories de cas d'usage au fur et à mesure
-# def get_assign_ticket_usecase() -> AssignTicketUseCase:
-#     return AssignTicketUseCase(ticket_repository)
+def get_assign_ticket_usecase() -> AssignTicketUseCase:
+    return AssignTicketUseCase(ticket_repository)
+
+
+def get_list_tickets_usecase() -> ListTicketsUseCase:
+    return ListTicketsUseCase(ticket_repository)
+
 
 # --- Routes ---
 app.include_router(ticket_router)
