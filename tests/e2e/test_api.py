@@ -39,7 +39,7 @@ class TestTicketAPI:
             json={
                 "title": "Bug urgent",
                 "description": "L'appli plante",
-                "creator_id": "001",
+                "creator_id": "user-001",
             },
         )
         assert response.status_code == 201
@@ -59,7 +59,7 @@ class TestTicketAPI:
     #     # D'abord créer un ticket
     #     create_response = client.post(
     #         "/tickets/",
-    #         json={"title": "Test", "description": "Desc", "creator_id": "002"},
+    #         json={"title": "Test", "description": "Desc"},
     #     )
     #     ticket_id = create_response.json()["id"]
 
@@ -72,3 +72,50 @@ class TestTicketAPI:
         """GET /tickets/{id} avec un ID inexistant doit retourner 404."""
         response = client.get("/tickets/nonexistent-id")
         assert response.status_code == 404
+
+
+class TestUserAPI:
+    """Tests pour les routes /users."""
+
+    def test_create_user(self):
+        """POST /users/ doit créer un utilisateur."""
+        import uuid
+
+        unique_username = f"alice-{uuid.uuid4().hex[:6]}"
+        response = client.post(
+            "/users/",
+            json={"username": unique_username, "is_agent": False, "is_admin": False},
+        )
+        assert response.status_code == 201
+        data = response.json()
+        assert data["username"] == unique_username
+        assert data["is_agent"] is False
+        assert data["is_admin"] is False
+        assert "id" in data
+
+    def test_create_agent(self):
+        """POST /users/ doit pouvoir créer un agent."""
+        import uuid
+
+        unique_username = f"agent-bob-{uuid.uuid4().hex[:6]}"
+        response = client.post(
+            "/users/",
+            json={"username": unique_username, "is_agent": True, "is_admin": False},
+        )
+        assert response.status_code == 201
+        assert response.json()["is_agent"] is True
+
+    def test_create_duplicate_user_returns_400(self):
+        """POST /users/ avec un username existant doit retourner 400."""
+        import uuid
+
+        unique_username = f"dupuser-{uuid.uuid4().hex[:6]}"
+        client.post("/users/", json={"username": unique_username})
+        response = client.post("/users/", json={"username": unique_username})
+        assert response.status_code == 400
+
+    def test_list_users(self):
+        """GET /users/ doit retourner la liste des utilisateurs."""
+        response = client.get("/users/")
+        assert response.status_code == 200
+        assert isinstance(response.json(), list)
