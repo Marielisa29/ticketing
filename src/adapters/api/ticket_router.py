@@ -6,6 +6,8 @@ C'est un adaptateur "primaire" (ou "driving") : il reçoit les requêtes
 de l'extérieur et appelle les cas d'usage de l'application.
 """
 
+from http.client import HTTPException
+
 from fastapi import APIRouter
 from pydantic import BaseModel
 
@@ -41,6 +43,18 @@ class TicketOut(BaseModel):
     title: str
     description: str
     status: str
+
+
+class AssignmentIn(BaseModel):
+    """Schéma pour assigner un ticket à un agent."""
+
+    agent_id: str
+
+
+class StartTicketIn(BaseModel):
+    """Schéma pour démarrer le traitement d'un ticket."""
+
+    agent_id: str
 
 
 # Import de la factory du cas d'usage depuis la racine de composition
@@ -118,3 +132,76 @@ async def list_tickets():
         )
         for ticket in tickets
     ]
+
+
+@router.patch("/{ticket_id}/assign", response_model=TicketOut)
+async def assign_ticket(ticket_id: str, assignment: AssignmentIn):
+    """
+    Assigner un ticket à un agent.
+
+    Args:
+        ticket_id: L'identifiant du ticket à assigner
+        assignment: Les données d'assignation contenant l'ID de l'agent
+
+    Returns:
+        Le ticket assigné
+
+    Raises:
+        HTTPException: 404 si le ticket n'existe pas
+        HTTPException: 400 si la règle métier est violée
+    """
+    from src.domain.exceptions import TicketNotFoundError
+    from src.main import get_assign_ticket_usecase
+
+    try:
+        usecase = get_assign_ticket_usecase()
+        ticket = usecase.execute(ticket_id=ticket_id, agent_id=assignment.agent_id)
+
+        return TicketOut(
+            id=ticket.id,
+            title=ticket.title,
+            description=ticket.description,
+            status=ticket.status.value,
+        )
+    except TicketNotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e)) from e
+    except ValueError as e:
+        # Règles métier violées (ticket déjà assigné, etc.)
+        raise HTTPException(status_code=400, detail=str(e)) from e
+
+
+@router.patch("/{ticket_id}/start", response_model=TicketOut)
+async def start_ticket(ticket_id: str, data: StartTicketIn):
+    """
+    Démarrer le traitement d'un ticket.
+
+    Args:
+        ticket_id: L'identifiant du ticket à démarrer
+        data: Les données contenant l'ID de l'agent qui démarre le ticket
+
+    Returns:
+        Le ticket démarré avec le statut IN_PROGRESS
+
+    Raises:
+        HTTPException: 404 si le ticket n'existe pas
+        HTTPException: 400 si la règle métier est violée (ticket non assigné,
+                       mauvais agent, ticket pas en statut OPEN)
+    """
+    from src.domain.exceptions import TicketNotFoundError
+    from src.main import get_start_ticket_usecase
+
+    try:
+        usecase = get_start_ticket_usecase()
+        ticket = usecase.execute(ticket_id=ticket_id, agent_id=data.agent_id)
+
+        return TicketOut(
+            id=ticket.id,
+            title=ticket.title,
+            description=ticket.description,
+            status=ticket.status.value,  # Devrait être "in_progress"
+        )
+    except TicketNotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e)) from e
+    except ValueError as e:
+        # Règles métier violées (ticket non assigné, mauvais agent, statut invalide)
+        raise HTTPException(status_code=400, detail=str(e)) from e

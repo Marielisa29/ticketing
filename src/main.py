@@ -21,6 +21,8 @@ from src.application.usecases.create_ticket import CreateTicketUseCase
 from src.application.usecases.create_user import CreateUserUseCase
 from src.application.usecases.list_ticket import ListTicketsUseCase
 from src.application.usecases.list_user import ListUsersUseCase
+from src.application.usecases.start_ticket import StartTicketUseCase
+from src.ports import clock
 
 app = FastAPI(title="Ticketing Starter")
 
@@ -55,6 +57,10 @@ def get_create_user_usecase() -> CreateUserUseCase:
 
 def get_list_users_usecase() -> ListUsersUseCase:
     return ListUsersUseCase(user_repository)
+
+
+def get_start_ticket_usecase() -> StartTicketUseCase:
+    return StartTicketUseCase(ticket_repository=ticket_repository, clock=clock)
 
 
 # --- Routes ---
