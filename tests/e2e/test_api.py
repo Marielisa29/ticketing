@@ -119,3 +119,97 @@ class TestUserAPI:
         response = client.get("/users/")
         assert response.status_code == 200
         assert isinstance(response.json(), list)
+
+
+class TestStartTicketAPI:
+    """Tests de la route PATCH /tickets/{id}/start"""
+
+    def test_start_ticket_success(self):
+        """Démarrer un ticket assigné doit retourner 200."""
+        # ARRANGE : Créer un ticket
+        ticket_data = {
+            "title": "Bug critique",
+            "description": "Le serveur crash",
+            "creator_id": "user-123",
+        }
+        create_response = client.post("/tickets/", json=ticket_data)
+        assert create_response.status_code == 201
+        ticket_id = create_response.json()["id"]
+
+        # Assigner le ticket via PATCH /assign
+        client.patch(f"/tickets/{ticket_id}/assign", json={"agent_id": "agent-456"})
+
+        # ACT : Démarrer le ticket
+        response = client.patch(f"/tickets/{ticket_id}/start", json={"agent_id": "agent-456"})
+
+        # ASSERT
+        assert response.status_code == 200
+        data = response.json()
+        assert data["id"] == ticket_id
+        assert data["status"] == "in_progress"  # Valeur de Status.IN_PROGRESS.value
+
+    def test_start_nonexistent_ticket_returns_404(self):
+        """Démarrer un ticket inexistant doit retourner 404."""
+        # ACT
+        response = client.patch("/tickets/ticket-inexistant/start", json={"agent_id": "agent-456"})
+
+        # ASSERT
+        assert response.status_code == 404
+        assert "not found" in response.json()["detail"].lower()
+
+    def test_start_unassigned_ticket_returns_400(self):
+        """Démarrer un ticket non assigné doit retourner 400."""
+        # ARRANGE : Créer un ticket NON assigné
+        ticket_data = {
+            "title": "Bug critique",
+            "description": "Le serveur crash",
+            "creator_id": "user-123",
+        }
+        create_response = client.post("/tickets/", json=ticket_data)
+        ticket_id = create_response.json()["id"]
+
+        # ACT : Essayer de démarrer sans assignation préalable
+        response = client.patch(f"/tickets/{ticket_id}/start", json={"agent_id": "agent-456"})
+
+        # ASSERT
+        assert response.status_code == 400
+        assert "assigned" in response.json()["detail"].lower()  # TicketNotAssignedError
+
+    def test_start_with_wrong_agent_returns_400(self):
+        """Démarrer avec un agent différent de celui assigné doit retourner 400."""
+        # ARRANGE : Créer un ticket et l'assigner à agent-456
+        ticket_data = {
+            "title": "Bug critique",
+            "description": "Le serveur crash",
+            "creator_id": "user-123",
+        }
+        create_response = client.post("/tickets/", json=ticket_data)
+        ticket_id = create_response.json()["id"]
+
+        client.patch(f"/tickets/{ticket_id}/assign", json={"agent_id": "agent-456"})
+
+        # ACT : Démarrer avec un autre agent
+        response = client.patch(f"/tickets/{ticket_id}/start", json={"agent_id": "agent-789"})
+
+        # ASSERT
+        assert response.status_code == 400
+        assert "agent" in response.json()["detail"].lower()  # WrongAgentError
+
+    def test_start_with_invalid_data_returns_422(self):
+        """Envoyer des données invalides doit retourner 422."""
+        # ARRANGE : Créer et assigner un ticket
+        ticket_data = {
+            "title": "Bug critique",
+            "description": "Le serveur crash",
+            "creator_id": "user-123",
+        }
+        create_response = client.post("/tickets/", json=ticket_data)
+        ticket_id = create_response.json()["id"]
+
+        client.patch(f"/tickets/{ticket_id}/assign", json={"agent_id": "agent-456"})
+
+        # ACT : Envoyer un agent_id de type invalide
+        response = client.patch(f"/tickets/{ticket_id}/start", json={"agent_id": 123})  # int au lieu de string
+
+        # ASSERT
+        assert response.status_code == 422

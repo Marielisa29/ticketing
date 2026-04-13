@@ -6,9 +6,7 @@ C'est un adaptateur "primaire" (ou "driving") : il reçoit les requêtes
 de l'extérieur et appelle les cas d'usage de l'application.
 """
 
-from http.client import HTTPException
-
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
 router = APIRouter(prefix="/tickets", tags=["tickets"])
