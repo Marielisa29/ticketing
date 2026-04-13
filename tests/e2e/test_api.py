@@ -140,7 +140,10 @@ class TestStartTicketAPI:
         client.patch(f"/tickets/{ticket_id}/assign", json={"agent_id": "agent-456"})
 
         # ACT : Démarrer le ticket
-        response = client.patch(f"/tickets/{ticket_id}/start", json={"agent_id": "agent-456"})
+        response = client.patch(
+            f"/tickets/{ticket_id}/start", 
+            json={"agent_id": "agent-456"}
+        )
 
         # ASSERT
         assert response.status_code == 200
@@ -151,7 +154,10 @@ class TestStartTicketAPI:
     def test_start_nonexistent_ticket_returns_404(self):
         """Démarrer un ticket inexistant doit retourner 404."""
         # ACT
-        response = client.patch("/tickets/ticket-inexistant/start", json={"agent_id": "agent-456"})
+        response = client.patch(
+            "/tickets/ticket-inexistant/start", 
+            json={"agent_id": "agent-456"}
+        )
 
         # ASSERT
         assert response.status_code == 404
@@ -169,7 +175,10 @@ class TestStartTicketAPI:
         ticket_id = create_response.json()["id"]
 
         # ACT : Essayer de démarrer sans assignation préalable
-        response = client.patch(f"/tickets/{ticket_id}/start", json={"agent_id": "agent-456"})
+        response = client.patch(
+            f"/tickets/{ticket_id}/start",
+            json={"agent_id": "agent-456"}
+        )
 
         # ASSERT
         assert response.status_code == 400
@@ -189,7 +198,10 @@ class TestStartTicketAPI:
         client.patch(f"/tickets/{ticket_id}/assign", json={"agent_id": "agent-456"})
 
         # ACT : Démarrer avec un autre agent
-        response = client.patch(f"/tickets/{ticket_id}/start", json={"agent_id": "agent-789"})
+        response = client.patch(
+            f"/tickets/{ticket_id}/start",
+            json={"agent_id": "agent-789"}
+        )
 
         # ASSERT
         assert response.status_code == 400
@@ -209,7 +221,10 @@ class TestStartTicketAPI:
         client.patch(f"/tickets/{ticket_id}/assign", json={"agent_id": "agent-456"})
 
         # ACT : Envoyer un agent_id de type invalide
-        response = client.patch(f"/tickets/{ticket_id}/start", json={"agent_id": 123})  # int au lieu de string
+        response = client.patch(
+            f"/tickets/{ticket_id}/start",
+            json={"agent_id": 123}  # int au lieu de string
+        )
 
         # ASSERT
         assert response.status_code == 422

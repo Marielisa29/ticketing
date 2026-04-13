@@ -25,7 +25,6 @@ from src.application.usecases.list_ticket import ListTicketsUseCase
 from src.application.usecases.list_user import ListUsersUseCase
 from src.application.usecases.start_ticket import StartTicketUseCase
 from src.domain.exceptions import TicketNotAssignedError, WrongAgentError
-from src.ports import clock
 
 clock = SystemClock()
 
