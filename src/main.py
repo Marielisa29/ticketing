@@ -10,9 +10,9 @@ La règle d'or : seul ce fichier connaît les implémentations concrètes.
 Les cas d'usage ne voient que les interfaces (ports).
 """
 
-from fastapi import FastAPI
-from fastapi import Request, status
+from fastapi import FastAPI, Request, status
 from fastapi.responses import JSONResponse
+
 from src.adapters.api.ticket_router import router as ticket_router
 from src.adapters.api.user_router import router as user_router
 from src.adapters.db.ticket_repository_inmemory import InMemoryTicketRepository
